@@ -20,7 +20,7 @@ set -e
 usage() {
     echo
     echo "Usage: $(basename $0)"
-    echo "            [-a i386 | **amd64** | armhf ]"
+    echo "            [-a i386 | **arm64** | armhf ]"
     echo "            [-b **haproxy** ]"
     echo "            [-c **~/.cache/image-create** | <cache directory> ]"
     echo "            [-d **xenial**/**7** | trusty | <other release id> ]"
@@ -38,7 +38,7 @@ usage() {
     echo "            [-w <working directory> ]"
     echo "            [-x]"
     echo
-    echo "        '-a' is the architecture type for the image (default: amd64)"
+    echo "        '-a' is the architecture type for the image (default: arm64)"
     echo "        '-b' is the backend type (default: haproxy)"
     echo "        '-c' is the path to the cache directory (default: ~/.cache/image-create)"
     echo "        '-d' distribution release id (default on ubuntu: xenial)"
@@ -90,7 +90,8 @@ while getopts "a:b:c:d:ehi:l:no:pt:r:s:vw:x" opt; do
         a)
             AMP_ARCH=$OPTARG
             if [ $AMP_ARCH != "i386" ] && \
-                [ $AMP_ARCH != "amd64" ] && \
+                [ $AMP_ARCH != "arm64" ] && \
+                [ $AMP_ARCH != "aarch64" ] && \
                 [ $AMP_ARCH != "armhf" ]; then
                 echo "Error: Unsupported architecture " $AMP_ARCH " specified"
                 exit 3
@@ -187,7 +188,7 @@ if [ "$1" ]; then
 fi
 
 # Set the Octavia Amphora defaults if they aren't already set
-AMP_ARCH=${AMP_ARCH:-"amd64"}
+AMP_ARCH=${AMP_ARCH:-"arm64"}
 
 AMP_BACKEND=${AMP_BACKEND:-"haproxy-octavia"}
 
@@ -257,6 +258,21 @@ if [ "${AMP_BASEOS}" = "rhel" ]; then
         echo "DIB_LOCAL_IMAGE variable must be set and point to a RHEL 7 base cloud image. Exiting."
         echo "For more information, see the README file in ${DIB_ELEMENTS_PATH}/elements/rhel7"
         exit 1
+    fi
+fi
+
+if [ "${AMP_ARCH}" = "aarch64" ]; then
+    if [ -z "${DIB_BLOCK_DEVICE}" ]; then
+        echo "Setting DIB_BLOCK_DEVICE to efi by default on arm64"
+        export DIB_BLOCK_DEVICE=efi
+        AMP_element_sequence="$AMP_element_sequence block-device-efi"
+    fi
+fi
+if [ "${AMP_ARCH}" = "arm64" ]; then
+    if [ -z "${DIB_BLOCK_DEVICE}" ]; then
+        echo "Setting DIB_BLOCK_DEVICE to efi by default on arm64"
+        export DIB_BLOCK_DEVICE=efi
+        AMP_element_sequence="$AMP_element_sequence block-device-efi"
     fi
 fi
 
@@ -405,6 +421,7 @@ if [ -n "$dib_enable_tracing" ]; then
     dib_trace_arg="-x"
 fi
 
+echo disk-image-create $AMP_LOGFILE $dib_trace_arg -a $AMP_ARCH -o $AMP_OUTPUTFILENAME -t $AMP_IMAGETYPE --image-size $AMP_IMAGESIZE --image-cache $AMP_CACHEDIR $AMP_element_sequence
 disk-image-create $AMP_LOGFILE $dib_trace_arg -a $AMP_ARCH -o $AMP_OUTPUTFILENAME -t $AMP_IMAGETYPE --image-size $AMP_IMAGESIZE --image-cache $AMP_CACHEDIR $AMP_element_sequence
 
 popd > /dev/null # out of $TEMP

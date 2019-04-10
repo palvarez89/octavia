@@ -178,7 +178,7 @@ class TestOSUtils(base.TestCase):
 
     def test_cmd_get_version_of_installed_package_mapped(self):
         package_name = 'haproxy'
-        centos_cmd = "rpm -q --queryformat %{VERSION} haproxy18"
+        centos_cmd = "rpm -q --queryformat %{VERSION} haproxy"
 
         returned_centos_cmd = (
             self.centos_os_util.cmd_get_version_of_installed_package(

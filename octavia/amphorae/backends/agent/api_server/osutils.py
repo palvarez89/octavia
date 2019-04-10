@@ -557,7 +557,7 @@ class RH(BaseOS):
 
 class CentOS(RH):
 
-    PACKAGE_NAME_MAP = {'haproxy': 'haproxy18'}
+    PACKAGE_NAME_MAP = {'haproxy': 'haproxy'}
 
     @classmethod
     def is_os_name(cls, os_name):
