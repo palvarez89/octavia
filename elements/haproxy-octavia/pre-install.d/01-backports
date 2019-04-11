@@ -7,5 +7,7 @@ set -o xtrace
 if [ "$DISTRO_NAME" == "ubuntu" ] && [ "$DIB_RELEASE" == "trusty" ]; then
     echo deb http://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse > /etc/apt/sources.list.d/backports.list
 elif [ "$DISTRO_NAME" == "centos7" ]; then
+    echo 'exclude=shim*,mokutil*,grub*' >> /etc/yum.conf
+    echo 'cancelled shim mokutil and grub from upgrades'
     echo none!
 fi
