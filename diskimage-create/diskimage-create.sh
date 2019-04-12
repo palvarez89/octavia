@@ -272,7 +272,7 @@ if [ "${AMP_ARCH}" = "arm64" ]; then
     if [ -z "${DIB_BLOCK_DEVICE}" ]; then
         echo "Setting DIB_BLOCK_DEVICE to efi by default on arm64"
         export DIB_BLOCK_DEVICE=efi
-        AMP_element_sequence="$AMP_element_sequence block-device-efi"
+        AMP_element_sequence="$AMP_element_sequence block-device-efi bootloader"
     fi
 fi
 
